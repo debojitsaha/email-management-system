@@ -12,7 +12,7 @@ if (!process.env.NODE_ENV) {
 // Import npm packages we'll use*.todo.md
 import path from "path"; // path for directory handling
 import cors from "cors"; // cors is for cross origin resource sharing.
-import morgan from "morgan"; // morgan is for better logging of each request
+// import morgan from "morgan"; // morgan is for better logging of each request
 import express from "express"; // express is the framework for the backend
 import swaggerUi from "swagger-ui-express"; // swagger is the package we use for better documentation of the api
 
@@ -46,7 +46,7 @@ app.disable("x-powered-by");
 // Add some external middlewares. These middlewares will always function for every request our express app receives.
 app.use(cors()); // allows cross origin resource sharing. Edit and add whitelisted servers only
 app.use(express.json()); // specifies that the type of json in request body and response body will be JSON
-app.use(morgan("combined")); // use morgan to log each request
+// app.use(morgan("combined")); // use morgan to log each request
 app.use(express.urlencoded({ extended: true })); // this middleware parses the incoming request body else it wouldn't be identified as a paylod data.
 
 // Set up ejs for server side rendering.
