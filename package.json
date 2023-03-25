@@ -18,15 +18,15 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/mindwebs/nodets-api-template.git"
+        "url": "git+https://github.com/mindwebs/email-management-system.git"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/mindwebs/nodets-api-template/issues"
+        "url": "https://github.com/mindwebs/email-management-system/issues"
     },
-    "homepage": "https://github.com/mindwebs/nodets-api-template#readme",
+    "homepage": "https://github.com/mindwebs/email-management-system#readme",
     "dependencies": {
         "bcryptjs": "^2.4.3",
         "cors": "^2.8.5",
