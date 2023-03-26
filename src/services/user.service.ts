@@ -1,6 +1,6 @@
 import { UserDto, UserSchemaDto } from "../dtos/user.dto";
 import User from "../models/user.model";
-import bcrypt from "bcryptjs";
+import { Types } from "mongoose";
 
 /**
  * createUser service creates a newUser & returns it.
@@ -17,13 +17,15 @@ const createUser = async (user: UserDto): Promise<UserSchemaDto> => {
 /**
  * login service returns an existing user if any else null.
  *
- * @param {UserDto} credentials is the User object present in db
- * @returns {any} returns an object.
+ * @param {string} email is the user email to be searched
+ * @returns {Promise<UserSchemaDto>} returns the user document matching the 
  */
-const login = async (credentials: UserDto) => {
-  const existingUser = await User.findOne({ email: credentials.email });
-
-  return existingUser;
+const fetchUserByEmail = async (email: string): Promise<UserSchemaDto | null> => {
+  return await User.findOne({ email });
 };
 
-export { createUser, login };
+const fetchUserById = async (id: Types.ObjectId): Promise<UserSchemaDto | null> => {
+  return await User.findById(id);
+};
+
+export { createUser, fetchUserByEmail, fetchUserById };

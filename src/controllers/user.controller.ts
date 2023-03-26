@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserDto } from "../dtos/user.dto";
-import { createUser, login } from "../services/user.service";
+import * as userService from "../services/user.service";
 import { GenerateResponse } from "../utils/response.creator";
 import User from "../models/user.model";
 import bcrypt from "bcryptjs";
@@ -24,8 +24,8 @@ const CreateUser = async (req: Request, res: Response): Promise<Response> => {
 
     let email = user.name.split(" ").join(".") + randomSlug + "@mindwebs.com";
 
-    const fetchUserEmail = await User.findOne({ email: email });
-    if (fetchUserEmail) {
+    const fetchUserByEmail = await userService.fetchUserByEmail(user.email);
+    if (fetchUserByEmail) {
       randomSlug = uniqueSlug("mindwebs@ems@3.0");
       email = user.name.split(" ").join(".") + randomSlug + "@mindwebs.com";
     }
@@ -39,7 +39,7 @@ const CreateUser = async (req: Request, res: Response): Promise<Response> => {
     user.password = secPass;
 
     //DB Call to create new user.
-    const result = await createUser(user);
+    const result = await userService.createUser(user);
 
     return GenerateResponse(res, 201, result, "Registration Successful");
   } catch (err: any) {
@@ -66,7 +66,7 @@ const LoginUser = async (req: Request, res: Response): Promise<Response> => {
     const credentials: UserDto = { ...req.body };
 
     // db call to get the details of already existing user.
-    const result = await login(credentials);
+    const result = await userService.fetchUserByEmail(credentials.email);
     // check if such user exists.
     if (!result) return GenerateResponse(res, 400, {}, "Invalid Credentials");
 
