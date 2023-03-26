@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { UserDto } from "../dtos/user.dto";
+import { UserDto, UserSchemaDto } from "../dtos/user.dto";
 import * as userService from "../services/user.service";
 import { GenerateResponse } from "../utils/response.creator";
-import User from "../models/user.model";
 import bcrypt from "bcryptjs";
+import { SendOTP } from "../config/twilio.config";
 var uniqueSlug = require("unique-slug");
 var jwt = require("jsonwebtoken");
 
@@ -24,7 +24,7 @@ const CreateUser = async (req: Request, res: Response): Promise<Response> => {
 
     let email = user.name.split(" ").join(".") + randomSlug + "@mindwebs.com";
 
-    const fetchUserByEmail = await userService.fetchUserByEmail(user.email);
+    const fetchUserByEmail: UserSchemaDto | null = await userService.fetchUserByEmail(user.email);
     if (fetchUserByEmail) {
       randomSlug = uniqueSlug("mindwebs@ems@3.0");
       email = user.name.split(" ").join(".") + randomSlug + "@mindwebs.com";

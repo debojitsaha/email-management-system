@@ -1,32 +1,32 @@
 {
-    "name": "nodets-api-template",
+    "name": "emailo-api",
     "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
+    "description": "Self Hostel Emailing API",
+    "main": "build/emailo-api.js",
     "scripts": {
         "build": "tsc -p .",
         "cover": "nyc npm run test && nyc --reporter lcov --reporter text --report-dir coverage report",
         "cover:test": "nyc npm run test",
         "cover:report": "nyc --reporter lcov --reporter text --report-dir coverage report",
-        "dev": "cross-env NODE_ENV=development nodemon ./src/app.ts",
+        "dev": "cross-env NODE_ENV=development nodemon ./src/emailo-api.ts",
         "docs": "typedoc --tsconfig ./tsconfig.json",
         "lint": "eslint ./src",
         "lint:fix": "eslint ./src --fix",
         "prettify": "prettier --write .",
-        "start": "npm run build && cross-env NODE_ENV=production node ./build/app.js",
+        "start": "tsc -p . && cross-env NODE_ENV=production node ./build/emailo-api.js",
         "test": "cross-env NODE_ENV=test mocha --timeout 15000 --require ts-node/register ./src/tests/integrations/*.specs.ts --exit"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/mindwebs/email-management-system.git"
+        "url": "git+https://github.com/mwv-research/emailo.git"
     },
-    "keywords": [],
-    "author": "",
+    "keywords": ["debojit"],
+    "author": "Mind Webs <contact@mindwebs.org>",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/mindwebs/email-management-system/issues"
+        "url": "https://github.com/mwv-research/emailo/issues"
     },
-    "homepage": "https://github.com/mindwebs/email-management-system#readme",
+    "homepage": "https://github.com/mwv-research/emailo#readme",
     "dependencies": {
         "bcryptjs": "^2.4.3",
         "cors": "^2.8.5",
