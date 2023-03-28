@@ -13,7 +13,7 @@ var jwt = require("jsonwebtoken");
  *
  * @param {Request} req express request interface
  * @param {Response} res express response interface
- * @returns {any} returns status code 201, the data recieved from the service & a message.
+ * @returns {any} returns status code 201, user created & a message.
  */
 const CreateUser = async (req: Request, res: Response): Promise<Response> => {
     try {
@@ -24,21 +24,14 @@ const CreateUser = async (req: Request, res: Response): Promise<Response> => {
         user.otp = String(otp);
 
         // Unique email generation
-        var randomSlug = uniqueSlug();
-        // console.log(randomSlug);
-
-        let email =
-            user.name.split(" ").join(".") + randomSlug + "@mindwebs.com";
-
-        const fetchUserByEmail: UserSchemaDto | null =
-            await userService.fetchUserByEmail(user.email);
-        if (fetchUserByEmail) {
-            randomSlug = uniqueSlug("mindwebs@ems@3.0");
-            email =
-                user.name.split(" ").join(".") + randomSlug + "@mindwebs.com";
-        }
-
+        const count = await userService.countNames(user.name);
+        let email = user.name.split(" ").join(".") + "@mindwebs.com";
         email = email.toLowerCase();
+        // console.log(count);
+        if (count > 0) {
+            email = user.name.split(" ").join(".") + count + "@mindwebs.com";
+            email = email.toLowerCase();
+        }
         user.email = email;
 
         //DB Call to create new user.
@@ -59,6 +52,13 @@ const CreateUser = async (req: Request, res: Response): Promise<Response> => {
     }
 };
 
+/**
+ * Controller to verify the phone of a user by the OTP sent in CreateUser.
+ *
+ * @param {Request} req express request interface
+ * @param {Response} res express response interface
+ * @returns {Promise<Response>} returns status code 201, update user & a message.
+ */
 const VerifyPhone = async (req: Request, res: Response): Promise<Response> => {
     try {
         // const { userId } = req.params;
@@ -107,7 +107,7 @@ const VerifyPhone = async (req: Request, res: Response): Promise<Response> => {
  *
  * @param {Request} req express request interface
  * @param {Response} res express response interface
- * @returns {any}
+ * @returns {Promise<Response>} returns status code 201, Authentication Token & a message.
  */
 const LoginUser = async (req: Request, res: Response): Promise<Response> => {
     try {
@@ -117,7 +117,11 @@ const LoginUser = async (req: Request, res: Response): Promise<Response> => {
         const result = await userService.fetchUserByEmail(credentials.email);
         // check if such user exists.
         if (!result)
-            return GenerateResponse(res, 400, {}, "Invalid Credentials");
+            return GenerateResponse(res, 400, {}, "User does not exist");
+
+        // check if User is verified
+        if (!result.isPhoneVerified)
+            return GenerateResponse(res, 400, {}, "User not verified");
 
         // checking the password
         const passwordMatched = await bcrypt.compare(
@@ -137,7 +141,7 @@ const LoginUser = async (req: Request, res: Response): Promise<Response> => {
             }
         );
 
-        return GenerateResponse(res, 201, { authToken }, "Log In Successful");
+        return GenerateResponse(res, 201, { authToken }, "Login Successful");
     } catch (err: any) {
         if (String(process.env.DEBUG) === "TRUE") console.log(err);
         if (

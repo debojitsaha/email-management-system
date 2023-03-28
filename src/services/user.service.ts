@@ -9,9 +9,9 @@ import { Types } from "mongoose";
  * @returns {Promise<UserSchemaDto>} is the created User document.
  */
 const createUser = async (user: UserDto): Promise<UserSchemaDto> => {
-  const newUser = await User.create(user);
+    const newUser = await User.create(user);
 
-  return newUser;
+    return newUser;
 };
 
 /**
@@ -20,21 +20,51 @@ const createUser = async (user: UserDto): Promise<UserSchemaDto> => {
  * @param {string} email is the user email to be searched
  * @returns {Promise<UserSchemaDto>} returns the user document matching the.
  */
-const fetchUserByEmail = async (email: string): Promise<UserSchemaDto | null> => {
-  return await User.findOne({ email });
+const fetchUserByEmail = async (
+    email: string
+): Promise<UserSchemaDto | null> => {
+    return await User.findOne({ email });
 };
 
 /**
  * fetchUserById service finds an user with following id.
+ * 
  * @param {Types.ObjectId} id is the user._id
- * @returns {Promise<UserSchemaDto} returns the user document matching the.
+ * @returns {Promise<UserSchemaDto>} returns the user document matching the id.
  */
-const fetchUserById = async (id: Types.ObjectId): Promise<UserSchemaDto | null> => {
-  return await User.findById(id);
+const fetchUserById = async (
+    id: Types.ObjectId
+): Promise<UserSchemaDto | null> => {
+    return await User.findById(id);
 };
 
-const updateUserById = async(id: Types.ObjectId, user: UpdateUserDto): Promise<UserSchemaDto | null> =>{
-  return await User.findByIdAndUpdate({_id: id},user)
-}
+/**
+ * updateUserById service finds an user with following id & updates it values.
+ * 
+ * @param {Types.ObjectId, UpdateUserDto} id is the user._id & user is the UpdateUserDto
+ * @returns {Promise<UserSchemaDto>} returns the updated user document matching the id.
+ */
+const updateUserById = async (
+    id: Types.ObjectId,
+    user: UpdateUserDto
+): Promise<UserSchemaDto | null> => {
+    return await User.findByIdAndUpdate({ _id: id }, user);
+};
 
-export { createUser, fetchUserByEmail, fetchUserById, updateUserById };
+/**
+ * Counts the number of duplicate names of users in the document.
+ * 
+ * @param {string} name is the user.name
+ * @returns {any} frequency of duplicate entries.
+ */
+const countNames = async (name: string) => {
+    return await User.find({ name: name }).count();
+};
+
+export {
+    createUser,
+    fetchUserByEmail,
+    fetchUserById,
+    updateUserById,
+    countNames,
+};
