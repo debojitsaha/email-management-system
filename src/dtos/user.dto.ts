@@ -9,8 +9,12 @@ type UserDto = {
   sex: string;
   phone: string;
   country: string;
+  otp: string;
+  isPhoneVerified: boolean;
 };
+
+interface UpdateUserDto extends Partial<Omit<UserDto,"password">>{}
 
 type UserSchemaDto = UserDto & Document;
 
-export { UserDto, UserSchemaDto };
+export { UserDto, UserSchemaDto, UpdateUserDto };
