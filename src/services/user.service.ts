@@ -28,7 +28,7 @@ const fetchUserByEmail = async (
 
 /**
  * fetchUserById service finds an user with following id.
- * 
+ *
  * @param {Types.ObjectId} id is the user._id
  * @returns {Promise<UserSchemaDto>} returns the user document matching the id.
  */
@@ -40,7 +40,7 @@ const fetchUserById = async (
 
 /**
  * updateUserById service finds an user with following id & updates it values.
- * 
+ *
  * @param {Types.ObjectId, UpdateUserDto} id is the user._id & user is the UpdateUserDto
  * @returns {Promise<UserSchemaDto>} returns the updated user document matching the id.
  */
@@ -48,12 +48,14 @@ const updateUserById = async (
     id: Types.ObjectId,
     user: UpdateUserDto
 ): Promise<UserSchemaDto | null> => {
-    return await User.findByIdAndUpdate({ _id: id }, user);
+    return await User.findByIdAndUpdate({ _id: id }, user, {
+        returnDocument: "after",
+    });
 };
 
 /**
  * Counts the number of duplicate names of users in the document.
- * 
+ *
  * @param {string} name is the user.name
  * @returns {any} frequency of duplicate entries.
  */
