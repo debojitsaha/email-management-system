@@ -106,5 +106,41 @@ const SentEmails = async (req: Request, res: Response): Promise<Response> => {
         return GenerateResponse(res, 500);
     }
 };
+/**
+ * Controller to find all the mails received by the user.
+ *
+ * @param {Request} req express request interface
+ * @param {Response} res express response interface
+ * @returns {Promise<Response>} returns an array of all the mails received by the user.
+ */
+const InboxEmails = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const { userId } = req.params;
 
-export { SendEmail, SentEmails };
+        // fetch & check the user if exists.
+        const user: UserSchemaDto | null = await userService.fetchUserById(
+            new Types.ObjectId(userId)
+        );
+
+        if (!user) return GenerateResponse(res, 400, {}, "User does not exist");
+
+        // DB call to find all the emails sent by user by matching the user's email with the sender field.
+        const inboxMails = await emailService.inboxEmails(user.email);
+        const ccMails = await emailService.ccEmails(user.email);
+        const bccMails = await emailService.bccEmails(user.email);
+        const mails= inboxMails.concat(ccMails,bccMails)
+
+        return GenerateResponse(res, 201, mails, "Emails Sent by User");
+    } catch (err: any) {
+        if (String(process.env.DEBUG) === "TRUE") console.log(err);
+        if (
+            err.name === "ValidationError" ||
+            err.name == "CastError" ||
+            err.name == "BSONTypeError"
+        )
+            return GenerateResponse(res, 400, {}, "Wrong Input Format");
+        return GenerateResponse(res, 500);
+    }
+};
+
+export { SendEmail, SentEmails, InboxEmails };
