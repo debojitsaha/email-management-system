@@ -1,4 +1,4 @@
-import { model, Model, Schema } from "mongoose";
+import { model, Model, Schema, Types } from "mongoose";
 import { EmailSchemaDto } from "../dtos/email.dto";
 
 const emailSchema: Schema<EmailSchemaDto> = new Schema(
@@ -7,7 +7,7 @@ const emailSchema: Schema<EmailSchemaDto> = new Schema(
             type: String,
             required: true,
         },
-        reciever: {
+        receiver: {
             type: String,
             required: true,
         },
@@ -28,9 +28,7 @@ const emailSchema: Schema<EmailSchemaDto> = new Schema(
         attachments: {
             type: String,
         },
-        archived: [{
-            type: Object,
-        }],
+        archived: [{}],
     },
     {
         timestamps: true,

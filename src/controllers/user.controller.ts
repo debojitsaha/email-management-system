@@ -5,7 +5,6 @@ import { GenerateResponse } from "../utils/response.creator";
 import bcrypt from "bcryptjs";
 import { SendOTP } from "../config/twilio.config";
 import { Types } from "mongoose";
-var uniqueSlug = require("unique-slug");
 var jwt = require("jsonwebtoken");
 
 /**
@@ -13,7 +12,7 @@ var jwt = require("jsonwebtoken");
  *
  * @param {Request} req express request interface
  * @param {Response} res express response interface
- * @returns {any} returns status code 201, user created & a message.
+ * @returns {Promise<Response>} returns status code 201, user created & a message.
  */
 const CreateUser = async (req: Request, res: Response): Promise<Response> => {
     try {

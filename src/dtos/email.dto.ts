@@ -1,16 +1,21 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 type EmailDto = {
     sender: string;
-    reciever: string;
+    receiver: string;
     subject: string;
     cc: Array<string>;
     bcc: Array<string>;
     contents: string;
     attachments: string;
-    archived: Array<Object>;
+    archived: ArchiveDto[];
 };
 
-type EmailSchemaDto = EmailDto & Document;
+type ArchiveDto = {
+    user: Types.ObjectId;
+}
 
-export { EmailDto, EmailSchemaDto };
+type EmailSchemaDto = EmailDto & Document;
+type ArchiveSchemaDto = ArchiveDto & Document;
+
+export { EmailDto, EmailSchemaDto, ArchiveDto, ArchiveSchemaDto };
