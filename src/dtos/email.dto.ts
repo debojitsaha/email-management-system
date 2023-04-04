@@ -1,4 +1,5 @@
 import { Document, Types } from "mongoose";
+import { PaginationDto } from "./paginated.dto";
 
 type EmailDto = {
     sender: string;
@@ -11,8 +12,13 @@ type EmailDto = {
     archived: Types.ObjectId[];
 };
 
-interface UpdateEmailDto extends Partial<Omit<EmailDto, "sender receiver cc bcc">> {}
+interface UpdateEmailDto
+    extends Partial<Omit<EmailDto, "sender receiver cc bcc">> {}
 
 type EmailSchemaDto = EmailDto & Document;
 
-export { EmailDto, EmailSchemaDto, UpdateEmailDto };
+type EmailPaginationDto = {
+    emails: EmailSchemaDto[];
+} & PaginationDto;
+
+export { EmailDto, EmailSchemaDto, UpdateEmailDto, EmailPaginationDto };

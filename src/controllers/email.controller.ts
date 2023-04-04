@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import { GenerateResponse } from "../utils/response.creator";
-import { EmailDto, UpdateEmailDto } from "../dtos/email.dto";
+import {
+    EmailDto,
+    EmailPaginationDto,
+    EmailSchemaDto,
+    UpdateEmailDto,
+} from "../dtos/email.dto";
 import * as emailService from "../services/email.service";
 import * as userService from "../services/user.service";
 import { Types } from "mongoose";
@@ -84,6 +89,10 @@ const SentEmails = async (req: Request, res: Response): Promise<Response> => {
     try {
         const { userId } = req.params;
 
+        // default values for pagination
+        const page: number = req.query.page ? Number(req.query.page) : 1;
+        const limit: number = req.query.limit ? Number(req.query.limit) : 10;
+
         // fetch & check the user if exists.
         const user: UserSchemaDto | null = await userService.fetchUserById(
             new Types.ObjectId(userId)
@@ -94,7 +103,26 @@ const SentEmails = async (req: Request, res: Response): Promise<Response> => {
         // DB call to find all the emails sent by user by matching the user's email with the sender field.
         const mails = await emailService.sentEmails(user.email);
 
-        return GenerateResponse(res, 201, mails, "Emails Sent by User");
+        // slice the mails to given page and limit
+        const paginatedMailes: EmailSchemaDto[] = mails.slice(
+            (page - 1) * limit,
+            page * limit
+        );
+
+        // Prepare paginated response data
+        const data: EmailPaginationDto = {
+            emails: paginatedMailes,
+            hasNextPage: mails[page * limit] ? true : false,
+            hasPrevPage: page > 1 ? true : false,
+            limit,
+            nextPage: mails[page * limit] ? page + 1 : null,
+            prevPage: page > 1 ? page - 1 : null,
+            page,
+            totalObjects: mails.length,
+            totalPages: Math.ceil(mails.length / limit),
+        };
+
+        return GenerateResponse(res, 201, data, "Emails Sent by User");
     } catch (err: any) {
         if (String(process.env.DEBUG) === "TRUE") console.log(err);
         if (
@@ -117,6 +145,10 @@ const InboxEmails = async (req: Request, res: Response): Promise<Response> => {
     try {
         const { userId } = req.params;
 
+        // default values for pagination
+        const page: number = req.query.page ? Number(req.query.page) : 1;
+        const limit: number = req.query.limit ? Number(req.query.limit) : 10;
+
         // fetch & check the user if exists.
         const user: UserSchemaDto | null = await userService.fetchUserById(
             new Types.ObjectId(userId)
@@ -130,7 +162,26 @@ const InboxEmails = async (req: Request, res: Response): Promise<Response> => {
         const bccMails = await emailService.bccEmails(user.email);
         const mails = inboxMails.concat(ccMails, bccMails);
 
-        return GenerateResponse(res, 201, mails, "Emails Sent by User");
+        // slice the mails to given page and limit
+        const paginatedMailes: EmailSchemaDto[] = mails.slice(
+            (page - 1) * limit,
+            page * limit
+        );
+
+        // Prepare paginated response data
+        const data: EmailPaginationDto = {
+            emails: paginatedMailes,
+            hasNextPage: mails[page * limit] ? true : false,
+            hasPrevPage: page > 1 ? true : false,
+            limit,
+            nextPage: mails[page * limit] ? page + 1 : null,
+            prevPage: page > 1 ? page - 1 : null,
+            page,
+            totalObjects: mails.length,
+            totalPages: Math.ceil(mails.length / limit),
+        };
+
+        return GenerateResponse(res, 201, data, "Emails Sent by User");
     } catch (err: any) {
         if (String(process.env.DEBUG) === "TRUE") console.log(err);
         if (
@@ -145,7 +196,7 @@ const InboxEmails = async (req: Request, res: Response): Promise<Response> => {
 
 /**
  * Controller to archive the mail for a user.
- * 
+ *
  * @param {Request} req express request interface
  * @param {Response} res express response interface
  * @returns {Promise<Response>} returns the updated Email document which the user archived.
@@ -189,7 +240,7 @@ const ArchiveEmail = async (req: Request, res: Response): Promise<Response> => {
 
 /**
  * Controller to unarchive the mail for a user.
- * 
+ *
  * @param {Request} req express request interface
  * @param {Response} res express response interface
  * @returns {Promise<Response>} returns the updated Email document which the user unarchived.
@@ -213,7 +264,7 @@ const UnarchiveEmail = async (
         const archived = email.archived.filter((id) => {
             return String(id) != userId;
         });
-        // console.log(archived);        
+        // console.log(archived);
         const updateEmailDto: UpdateEmailDto = {
             archived: archived,
         };
