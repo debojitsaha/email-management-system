@@ -1,5 +1,5 @@
 import { Types } from "mongoose";
-import { EmailDto, EmailSchemaDto } from "../dtos/email.dto";
+import { EmailDto, EmailSchemaDto, UpdateEmailDto } from "../dtos/email.dto";
 import Email from "../models/email.model";
 
 /**
@@ -52,4 +52,27 @@ const inboxEmails = async (email: string): Promise<EmailSchemaDto[]> =>{
     return Email.find({receiver:email});
 }
 
-export { sendEmail, sentEmails, ccEmails, bccEmails, inboxEmails };
+/**
+ * fetchEmailById finds the email with the given id.
+ * 
+ * @param {Types.ObjectId} emailId of the email to find
+ * @returns {Promise<EmailSchemaDto | null>} returns the Email document.
+ */
+const fetchEmailById = async(emailId: Types.ObjectId): Promise<EmailSchemaDto | null>=>{
+    return Email.findById(emailId);
+}
+
+/**
+ * updateEmailById finds the email with the given id & updates the given fields through email.
+ * 
+ * @param {Types.ObjectId} emailId of the email to find
+ * @param {UpdateEmailDto} email of the email field's to be updated
+ * @returns {Promise<EmailSchemaDto | null>} returns the updated Email document.
+ */
+const updateEmailById = async(id: Types.ObjectId, email:UpdateEmailDto): Promise<EmailSchemaDto | null>=>{
+    return await Email.findByIdAndUpdate({ _id: id }, email, {
+        returnDocument: "after",
+    });
+}
+
+export { sendEmail, sentEmails, ccEmails, bccEmails, inboxEmails, fetchEmailById, updateEmailById };

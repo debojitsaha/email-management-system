@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { GenerateResponse } from "../utils/response.creator";
-import { EmailDto } from "../dtos/email.dto";
+import { EmailDto, UpdateEmailDto } from "../dtos/email.dto";
 import * as emailService from "../services/email.service";
 import * as userService from "../services/user.service";
 import { Types } from "mongoose";
@@ -128,7 +128,7 @@ const InboxEmails = async (req: Request, res: Response): Promise<Response> => {
         const inboxMails = await emailService.inboxEmails(user.email);
         const ccMails = await emailService.ccEmails(user.email);
         const bccMails = await emailService.bccEmails(user.email);
-        const mails= inboxMails.concat(ccMails,bccMails)
+        const mails = inboxMails.concat(ccMails, bccMails);
 
         return GenerateResponse(res, 201, mails, "Emails Sent by User");
     } catch (err: any) {
@@ -143,4 +143,98 @@ const InboxEmails = async (req: Request, res: Response): Promise<Response> => {
     }
 };
 
-export { SendEmail, SentEmails, InboxEmails };
+/**
+ * Controller to archive the mail for a user.
+ * 
+ * @param {Request} req express request interface
+ * @param {Response} res express response interface
+ * @returns {Promise<Response>} returns the updated Email document which the user archived.
+ */
+const ArchiveEmail = async (req: Request, res: Response): Promise<Response> => {
+    try {
+        const { userId, emailId } = req.params;
+
+        // check if the email exists
+        const email = await emailService.fetchEmailById(
+            new Types.ObjectId(emailId)
+        );
+
+        if (!email)
+            return GenerateResponse(res, 400, {}, "Email does not exist");
+
+        // append the user to archived field
+        email.archived.push(new Types.ObjectId(userId));
+        const updateEmailDto: UpdateEmailDto = {
+            archived: email.archived,
+        };
+
+        // DB Call to update the archive field
+        const updateEmail = await emailService.updateEmailById(
+            email._id,
+            updateEmailDto
+        );
+
+        return GenerateResponse(res, 201, updateEmail, "Email Archived");
+    } catch (err: any) {
+        if (String(process.env.DEBUG) === "TRUE") console.log(err);
+        if (
+            err.name === "ValidationError" ||
+            err.name == "CastError" ||
+            err.name == "BSONTypeError"
+        )
+            return GenerateResponse(res, 400, {}, "Wrong Input Format");
+        return GenerateResponse(res, 500);
+    }
+};
+
+/**
+ * Controller to unarchive the mail for a user.
+ * 
+ * @param {Request} req express request interface
+ * @param {Response} res express response interface
+ * @returns {Promise<Response>} returns the updated Email document which the user unarchived.
+ */
+const UnarchiveEmail = async (
+    req: Request,
+    res: Response
+): Promise<Response> => {
+    try {
+        const { userId, emailId } = req.params;
+
+        // check if the email exists
+        const email = await emailService.fetchEmailById(
+            new Types.ObjectId(emailId)
+        );
+
+        if (!email)
+            return GenerateResponse(res, 400, {}, "Email does not exist");
+
+        // remove the user from the archived field
+        const archived = email.archived.filter((id) => {
+            return String(id) != userId;
+        });
+        // console.log(archived);        
+        const updateEmailDto: UpdateEmailDto = {
+            archived: archived,
+        };
+
+        // DB Call to update the archived field
+        const updateEmail = await emailService.updateEmailById(
+            email._id,
+            updateEmailDto
+        );
+
+        return GenerateResponse(res, 201, updateEmail, "Email Unarchived");
+    } catch (err: any) {
+        if (String(process.env.DEBUG) === "TRUE") console.log(err);
+        if (
+            err.name === "ValidationError" ||
+            err.name == "CastError" ||
+            err.name == "BSONTypeError"
+        )
+            return GenerateResponse(res, 400, {}, "Wrong Input Format");
+        return GenerateResponse(res, 500);
+    }
+};
+
+export { SendEmail, SentEmails, InboxEmails, ArchiveEmail, UnarchiveEmail };

@@ -28,7 +28,7 @@ const emailSchema: Schema<EmailSchemaDto> = new Schema(
         attachments: {
             type: String,
         },
-        archived: [{}],
+        archived: [Schema.Types.ObjectId],
     },
     {
         timestamps: true,

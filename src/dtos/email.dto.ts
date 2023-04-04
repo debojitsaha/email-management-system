@@ -8,14 +8,11 @@ type EmailDto = {
     bcc: Array<string>;
     contents: string;
     attachments: string;
-    archived: ArchiveDto[];
+    archived: Types.ObjectId[];
 };
 
-type ArchiveDto = {
-    user: Types.ObjectId;
-}
+interface UpdateEmailDto extends Partial<Omit<EmailDto, "sender receiver cc bcc">> {}
 
 type EmailSchemaDto = EmailDto & Document;
-type ArchiveSchemaDto = ArchiveDto & Document;
 
-export { EmailDto, EmailSchemaDto, ArchiveDto, ArchiveSchemaDto };
+export { EmailDto, EmailSchemaDto, UpdateEmailDto };
