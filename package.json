@@ -1,7 +1,7 @@
 {
     "name": "emailo-api",
     "version": "1.0.0",
-    "description": "Self Hostel Emailing API",
+    "description": "Self Hosted Emailing API",
     "main": "build/emailo-api.js",
     "scripts": {
         "build": "tsc -p .",

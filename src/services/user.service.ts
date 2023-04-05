@@ -57,10 +57,20 @@ const updateUserById = async (
  * Counts the number of duplicate names of users in the document.
  *
  * @param {string} name is the user.name
- * @returns {any} frequency of duplicate entries.
+ * @returns {Promise<Number>} returns the frequency of duplicate entries.
  */
-const countNames = async (name: string) => {
+const countNames = async (name: string): Promise<Number> => {
     return await User.find({ name: name }).count();
+};
+
+/**
+ * Finds the user and returns the user document after removing the password field.
+ *
+ * @param {Types.ObjectId} id of the user
+ * @returns { Promise<UserSchemaDto | null>} returns the User document except password field.
+ */
+const findUser = async (id: Types.ObjectId): Promise<UserSchemaDto | null> => {
+    return await User.findOne({ _id: id }).select("-password");
 };
 
 export {
@@ -69,4 +79,5 @@ export {
     fetchUserById,
     updateUserById,
     countNames,
+    findUser,
 };
