@@ -22,6 +22,8 @@ const SendEmail = async (req: Request, res: Response): Promise<Response> => {
     try {
         const email: EmailDto = { ...req.body };
 
+        email.sender = req.body.user.email;
+
         // check if reveiver exists
         const receiverEmail = await userService.fetchUserByEmail(
             email.receiver
@@ -87,18 +89,11 @@ const SendEmail = async (req: Request, res: Response): Promise<Response> => {
  */
 const SentEmails = async (req: Request, res: Response): Promise<Response> => {
     try {
-        const { userId } = req.params;
+        const user = req.body.user;
 
         // default values for pagination
         const page: number = req.query.page ? Number(req.query.page) : 1;
         const limit: number = req.query.limit ? Number(req.query.limit) : 10;
-
-        // fetch & check the user if exists.
-        const user: UserSchemaDto | null = await userService.fetchUserById(
-            new Types.ObjectId(userId)
-        );
-
-        if (!user) return GenerateResponse(res, 400, {}, "User does not exist");
 
         // DB call to find all the emails sent by user by matching the user's email with the sender field.
         const mails = await emailService.sentEmails(user.email);
@@ -143,18 +138,11 @@ const SentEmails = async (req: Request, res: Response): Promise<Response> => {
  */
 const InboxEmails = async (req: Request, res: Response): Promise<Response> => {
     try {
-        const { userId } = req.params;
+        const user = req.body.user;
 
         // default values for pagination
         const page: number = req.query.page ? Number(req.query.page) : 1;
         const limit: number = req.query.limit ? Number(req.query.limit) : 10;
-
-        // fetch & check the user if exists.
-        const user: UserSchemaDto | null = await userService.fetchUserById(
-            new Types.ObjectId(userId)
-        );
-
-        if (!user) return GenerateResponse(res, 400, {}, "User does not exist");
 
         // DB call to find all the emails sent by user by matching the user's email with the sender field.
         const inboxMails = await emailService.inboxEmails(user.email);
@@ -203,7 +191,8 @@ const InboxEmails = async (req: Request, res: Response): Promise<Response> => {
  */
 const ArchiveEmail = async (req: Request, res: Response): Promise<Response> => {
     try {
-        const { userId, emailId } = req.params;
+        const { emailId } = req.params;
+        const user = req.body.user;
 
         // check if the email exists
         const email = await emailService.fetchEmailById(
@@ -214,7 +203,7 @@ const ArchiveEmail = async (req: Request, res: Response): Promise<Response> => {
             return GenerateResponse(res, 400, {}, "Email does not exist");
 
         // append the user to archived field
-        email.archived.push(new Types.ObjectId(userId));
+        email.archived.push(user._id);
         const updateEmailDto: UpdateEmailDto = {
             archived: email.archived,
         };
@@ -250,7 +239,8 @@ const UnarchiveEmail = async (
     res: Response
 ): Promise<Response> => {
     try {
-        const { userId, emailId } = req.params;
+        const { emailId } = req.params;
+        const user = req.body.user;
 
         // check if the email exists
         const email = await emailService.fetchEmailById(
@@ -262,7 +252,7 @@ const UnarchiveEmail = async (
 
         // remove the user from the archived field
         const archived = email.archived.filter((id) => {
-            return String(id) != userId;
+            return String(id) != String(user._id);
         });
         // console.log(archived);
         const updateEmailDto: UpdateEmailDto = {
